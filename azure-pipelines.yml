@@ -47,7 +47,8 @@ stages:
         Get-ChildItem -Path $path -Recurse -Filter "main.*" -File | 
         Foreach-Object {
             (Get-Content $_.FullName).replace('{{APP_BASE_URL}}', '$(Website.Url)') | Set-Content $_.FullName
-            (Get-Content $_.FullName).replace('{{REMOTE_SERVICE_BASE_URL}}', '$(Api.Url)') | Set-Content $_.FullName
+            (Get-Content $_.FullName).replace('{{VAR1}}', 'Hello') | Set-Content $_.FullName
+            (Get-Content $_.FullName).replace('{{VAR2}}', 'UAT') | Set-Content $_.FullName
         }
       workingDirectory: '$(Pipeline.Workspace)/frontend/static/js'
       displayName: 'PowerShell Script'
@@ -81,7 +82,8 @@ stages:
         Get-ChildItem -Path $path -Recurse -Filter "main.*" -File | 
         Foreach-Object {
             (Get-Content $_.FullName).replace('{{APP_BASE_URL}}', '$(Website.Url)') | Set-Content $_.FullName
-            (Get-Content $_.FullName).replace('{{REMOTE_SERVICE_BASE_URL}}', '$(Api.Url)') | Set-Content $_.FullName
+            (Get-Content $_.FullName).replace('{{VAR1}}', 'Goodnight') | Set-Content $_.FullName
+            (Get-Content $_.FullName).replace('{{VAR2}}', 'Production') | Set-Content $_.FullName
         }
       workingDirectory: '$(Pipeline.Workspace)/frontend/static/js'
       displayName: 'PowerShell Script'
