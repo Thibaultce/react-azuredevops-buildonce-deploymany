@@ -8,16 +8,10 @@ function App() {
       <header className="App-header">
         <img src={logo} className="App-logo" alt="logo" />
         <p>
-          Edit <code>src/App.js</code> and save to reload.
+          {process.env.REACT_APP_APP_BASE_URL}<br/>
+          {process.env.REACT_APP_VAR1}<br />
+          {process.env.REACT_APP_VAR2}
         </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
       </header>
     </div>
   );
