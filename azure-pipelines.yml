@@ -33,6 +33,8 @@ stages:
   displayName: 'Deployment to UAT'
   variables:
   - group: 'react-buildonce-deploymany.UAT'
+  - name: variable2
+    value: 'Variable 2'
   
   jobs:
   - job: Frontend
@@ -44,11 +46,18 @@ stages:
       artifact: frontend
 
     - powershell: |
+        $pattern = "{{(.*?)}}"
+        $envs = Get-childItem env:
         Get-ChildItem -Path $path -Recurse -Filter "main.*" -File | 
         Foreach-Object {
-            (Get-Content $_.FullName).replace('{{APP_BASE_URL}}', '$(Website.Url)') | Set-Content $_.FullName
-            (Get-Content $_.FullName).replace('{{VAR1}}', 'Hello') | Set-Content $_.FullName
-            (Get-Content $_.FullName).replace('{{VAR2}}', 'UAT') | Set-Content $_.FullName
+          $content = Get-Content $_.FullName
+          $results = $content | Select-String $pattern -AllMatches
+          
+          foreach ($tag in $results.Matches.Value) {
+              $cleanTag = $tag.replace('{{', '').replace('}}', '').replace('.', ',').ToUpper()
+              write-host $cleanTag
+              (Get-Content $_.FullName).replace($tag, ($envs|where{$_.Name -like $cleanTag}).Value) | Set-Content $_.FullName
+          }
         }
       workingDirectory: '$(Pipeline.Workspace)/frontend/static/js'
       displayName: 'PowerShell Script'
