@@ -1,0 +1,95 @@
+trigger:
+- master
+
+stages:
+- stage: 'Build'
+  displayName: 'Build and package the solution'
+  jobs:
+  - job: Frontend
+    pool:
+      vmImage: 'ubuntu-latest'
+
+    variables:
+      workingDirectory : '.'
+
+    steps:
+    - task: Npm@1
+      displayName: 'npm install'
+      inputs:
+        command: 'install'
+        workingDir: '$(workingDirectory)'
+
+    - task: Npm@1
+      displayName: 'npm build'
+      inputs:
+        command: 'custom'
+        workingDir: '$(workingDirectory)'
+        customCommand: 'run build'
+
+    - publish: $(workingDirectory)/build
+      artifact: frontend
+
+- stage: 'UAT'
+  displayName: 'Deployment to UAT'
+  variables:
+  - group: 'react-buildonce-deploymany.UAT'
+  
+  jobs:
+  - job: Frontend
+    pool:
+      vmImage: 'vs2017-win2016'
+
+    steps:
+    - download: current
+      artifact: frontend
+
+    - powershell: |
+        Get-ChildItem -Path $path -Recurse -Filter "main.*" -File | 
+        Foreach-Object {
+            (Get-Content $_.FullName).replace('{{APP_BASE_URL}}', '$(Website.Url)') | Set-Content $_.FullName
+            (Get-Content $_.FullName).replace('{{REMOTE_SERVICE_BASE_URL}}', '$(Api.Url)') | Set-Content $_.FullName
+        }
+      workingDirectory: '$(Pipeline.Workspace)/frontend/static/js'
+      displayName: 'PowerShell Script'
+
+    - task: AzureRmWebAppDeployment@4
+      displayName: 'Azure App Service Deploy - frontend'
+      inputs:
+        azureSubscription: 'Azure React Build Once Deploy Many'
+        WebAppName: '$(Azure.WebAppName)'
+        packageForLinux: '$(Pipeline.Workspace)/frontend'
+        enableCustomDeployment: true
+        deployToSlotOrASE: true
+        ResourceGroupName: '$(Azure.ResourceGroupName)'
+        SlotName: 'uat'
+
+- stage: 'Production'
+  displayName: 'Deployment to Production'
+  variables:
+  - group: 'react-buildonce-deploymany.PROD'
+  
+  jobs:
+  - job: Frontend
+    pool:
+      vmImage: 'vs2017-win2016'
+
+    steps:
+    - download: current
+      artifact: frontend
+
+    - powershell: |
+        Get-ChildItem -Path $path -Recurse -Filter "main.*" -File | 
+        Foreach-Object {
+            (Get-Content $_.FullName).replace('{{APP_BASE_URL}}', '$(Website.Url)') | Set-Content $_.FullName
+            (Get-Content $_.FullName).replace('{{REMOTE_SERVICE_BASE_URL}}', '$(Api.Url)') | Set-Content $_.FullName
+        }
+      workingDirectory: '$(Pipeline.Workspace)/frontend/static/js'
+      displayName: 'PowerShell Script'
+
+    - task: AzureRmWebAppDeployment@4
+      displayName: 'Azure App Service Deploy - frontend'
+      inputs:
+        azureSubscription: 'Azure React Build Once Deploy Many'
+        WebAppName: '$(Azure.WebAppName)'
+        packageForLinux: '$(Pipeline.Workspace)/frontend'
+        enableCustomDeployment: true
