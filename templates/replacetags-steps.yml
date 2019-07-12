@@ -1,0 +1,22 @@
+steps:
+- powershell: |
+   $pattern = "{{(.*?)}}"
+   $envs = Get-childItem env:
+   Get-ChildItem -Path $path -Recurse -Filter "main.*" -File | 
+   Foreach-Object {
+     $content = Get-Content $_.FullName
+     $results = $content | Select-String $pattern -AllMatches
+      
+     foreach ($tag in $results.Matches.Value) {
+         $cleanTag = $tag.replace('{{', '').replace('}}', '').replace('.', '_').ToUpper()
+         write-host $cleanTag
+         $data = ($envs|where{$_.Name -like $cleanTag}).Value
+         if ([string]::IsNullOrEmpty($data)) {
+           Write-Host  "##vso[task.LogIssue type=error;]$cleanTag was not initialized"
+           exit 1
+         }
+         (Get-Content $_.FullName).replace($tag, ($envs|where{$_.Name -like $cleanTag}).Value) | Set-Content $_.FullName
+     }
+   }
+  workingDirectory: '$(Pipeline.Workspace)/frontend/static/js'
+  displayName: 'PowerShell Script'
