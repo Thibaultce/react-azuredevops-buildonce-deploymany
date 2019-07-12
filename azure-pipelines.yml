@@ -63,9 +63,9 @@ stages:
   variables:
   - group: 'react-buildonce-deploymany.PROD'
   - name: variable1
-    value: 'Variable 1'
+    value: 'Production variable 1'
   - name: variable2
-    value: 'Variable 2'
+    value: 'Production variable 2'
   
   jobs:
   - job: Frontend
