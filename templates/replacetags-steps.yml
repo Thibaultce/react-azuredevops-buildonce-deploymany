@@ -1,6 +1,6 @@
 steps:
 - powershell: |
-   $pattern = "[!(.*?)!]"
+   $pattern = "\[!(.*?)!\]"
    $envs = Get-childItem env:
    Get-ChildItem -Path $path -Recurse -Filter "main.*" -File | 
    Foreach-Object {
