@@ -8,7 +8,7 @@ steps:
      $results = $content | Select-String $pattern -AllMatches
       
      foreach ($tag in $results.Matches.Value) {
-         $cleanTag = $tag.replace('{{', '').replace('}}', '').replace('.', '_').ToUpper()
+         $cleanTag = $tag.replace('[!', '').replace('!]', '').replace('.', '_').ToUpper()
          write-host $cleanTag
          $data = ($envs|where{$_.Name -like $cleanTag}).Value
          if ([string]::IsNullOrEmpty($data)) {
