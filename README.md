@@ -7,4 +7,4 @@ This solution explains how to deploy a React application to multiple environment
 The solution uses Azure DevOps as CI/CD pipeline.  
 The pipeline is defined in the *azure-pipelines.yml* file.
 
-![End-to-end solution](images/end-to-end.png)
+![End-to-end solution](article/images/end-to-end.png)
