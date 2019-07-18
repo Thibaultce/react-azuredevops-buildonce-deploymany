@@ -13,32 +13,32 @@
 
 ## Article
 
-You have a React application that you want to deploy to different environments?
+Do you have a React application that you want to deploy to any number of different environments?
 
-You have multiple hosting environments in your system (dev, uat, prod, etc.) and each of them have their own servers, configurations, hostnames, features, ... .
+Do you have multiple hosting environments in your system (dev, uat, prod, etc.) Each one with their own servers, configurations, hostnames, features, and so on?
 
-Here is how to do it without building the application for each environments.
+If so, I have the solution for you. This is how to deploy to many enviornments while only building *once*.
 
 ### End-to-end solution
 
-The end-to-end solution described in this article will look like the following diagram:
+The end-to-end solution described in this article is described in the following diagram:
 
 ![End-to-end solution](images/end-to-end.png)
 
 #### Azure
 
-Azure is a complete cloud platform that can host your existing applications, streamline the development of new applications, and even enhance on-premises applications. Azure integrates the cloud services that you need to develop, test, deploy and manage your applications—while taking advantage of the efficiencies of cloud computing[^1].
+Azure is a complete cloud platform that can host your existing applications, streamline the development of new applications, and even enhance on-premises applications. Azure integrates the cloud services that you need in order to develop, test, deploy and manage your applications — while at the same time taking advantage of the efficiencies of cloud computing[^1].
 
 #### Azure DevOps
 
-Azure DevOps provides development collaboration tools including high-performance pipelines, free private Git repositories, configurable Kanban boards, and extensive automated and continuous testing capabilities[^2].
+Azure DevOps is a suite of development collaboration tools including high-performance pipelines, free private Git repositories, configurable Kanban boards, and extensive automated and continuous testing capabilities[^2].
 
 #### Azure Pipelines
 
-Azure Pipelines is a cloud service that you can use to automatically build and test your code project and make it available to other users[^3].
+Azure Pipelines is a cloud service that allows you to automatically build and test your code project and make it available to other users[^3].
 
 
-If you're new to Azure Pipelines, here is a link that explain how to build, test and deploy your JavaScript/Node.js application : <a href="https://docs.microsoft.com/en-us/azure/devops/pipelines/languages/javascript?view=azure-devops" target="_blank">link</a>.
+If you're new to Azure Pipelines, here is a link to an article that explain how to build, test and deploy your JavaScript/Node.js application: <a href="https://docs.microsoft.com/en-us/azure/devops/pipelines/languages/javascript?view=azure-devops" target="_blank">link</a>.
 
 
 ### What we did
