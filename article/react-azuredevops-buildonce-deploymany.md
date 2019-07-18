@@ -81,7 +81,7 @@ Our *azure-pipelines.yml* (build pipeline) file looked something like this:
 ...
 ```
 
-When we wanted to deploy the application, we had to pick the right sub-folder in the artifacts. Here is the deployment task (release pipeline) for the UAT environment (:
+When we wanted to deploy the application, we had to pick the right sub-folder in the artifacts. Here is the deployment task (release pipeline) for the UAT environment:
 
 ```yaml
 - download: current
