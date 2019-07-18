@@ -51,39 +51,47 @@ To build and deploy our React applications, here are the main tasks we did in th
 Our *azure-pipelines.yml* (build pipeline) file looked something like this:
 ```yaml
 ...
-- script: yarn builduat
-  displayName: '[UAT] Yarn build front-end'
-  workingDirectory: $(WorkingDirectoryReact)
-
-- task: CopyFiles@2
-  displayName: '[UAT] Copy frond-end files to Build Artifcats Directory'
+- task: Npm@1
+  displayName: '[DEV] npm build'
   inputs:
-    SourceFolder: '$(WorkingDirectoryReact)/build'
-    TargetFolder: '$(Build.ArtifactStagingDirectory)/frontend/uat'
-    CleanTargetFolder: true
-
-- script: yarn build
-  displayName: '[PROD] Yarn build front-end'
-  workingDirectory: $(WorkingDirectoryReact)
-
-- task: CopyFiles@2
-  displayName: '[PROD] Copy frond-end files to Build Artifcats Directory'
+    command: 'custom'
+    workingDir: '$(workingDirectory)'
+    customCommand: 'run builddev'
+- publish: $(workingDirectory)/build
+  artifact: frontenddev
+  
+- task: Npm@1
+  displayName: '[UAT] npm build'
   inputs:
-    SourceFolder: '$(WorkingDirectoryReact)/build'
-    TargetFolder: '$(Build.ArtifactStagingDirectory)/frontend/prod'
-    CleanTargetFolder: true
+    command: 'custom'
+    workingDir: '$(workingDirectory)'
+    customCommand: 'run builduat'
+- publish: $(workingDirectory)/build
+  artifact: frontenduat
+  
+- task: Npm@1
+  displayName: '[PROD] npm build'
+  inputs:
+    command: 'custom'
+    workingDir: '$(workingDirectory)'
+    customCommand: 'run build'
+- publish: $(workingDirectory)/build
+  artifact: frontendprod
+
 ...
 ```
 
-When we wanted to deploy the application, we had to pick the right sub-folder in the artifacts. Here is the deployment task (release pipeline):
+When we wanted to deploy the application, we had to pick the right sub-folder in the artifacts. Here is the deployment task (release pipeline) for the UAT environment (:
 
 ```yaml
+- download: current
+  artifact: frontenduat
 - task: AzureRmWebAppDeployment@4
   displayName: 'Azure App Service Deploy: Front-end'
   inputs:
     azureSubscription: 'Azure React Build Once Deploy Many'
     WebAppName: '$(Azure.WebAppName)'
-    packageForLinux: '$(System.DefaultWorkingDirectory)/abc/drop/frontend/uat'
+    packageForLinux: '$(Pipeline.Workspace)/frontenduat'
     enableCustomDeployment: true
 ```
 
@@ -91,13 +99,13 @@ Regarding the solution, for every environment we had a specific task in the *pac
 
 ```json
 "scripts": {
-    "start": "react-app-rewired start --scripts-version react-scripts-ts",
-    "build": "set REACT_APP_ENV=production && react-app-rewired build --scripts-version react-scripts-ts",
-    "builduat": "set REACT_APP_ENV=uat && react-app-rewired build --scripts-version react-scripts-ts",
-    "builddev": "set REACT_APP_ENV=dev && react-app-rewired build --scripts-version react-scripts-ts",
-    "test": "react-app-rewired test --env=jsdom --scripts-version react-scripts-ts",
-    "eject": "react-scripts-ts eject"
-  },
+    "start": "react-scripts start",
+    "build": "set REACT_APP_ENV=production && react-scripts build",
+    "builduat": "set REACT_APP_ENV=uat && react-scripts build",
+    "builddev": "set REACT_APP_ENV=dev && react-scripts build",
+    "test": "react-scripts test",
+    "eject": "react-scripts eject"
+}
 ```
 
 The *REACT_APP_ENV* environment variable[^4] was used in the code to check the application environment. Once the application knows the environment, it can act accordingly.
