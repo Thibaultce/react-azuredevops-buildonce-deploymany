@@ -17,7 +17,7 @@ Do you have a React application that you want to deploy to any number of differe
 
 Do you have multiple hosting environments in your system (dev, uat, prod, etc.) Each one with their own servers, configurations, hostnames, features, and so on?
 
-If so, I have the solution for you. This is how to deploy to many enviornments while only building *once*.
+If so, I have the solution for you. This is how to deploy to many environments while only building *once*.
 
 ### End-to-end solution
 
@@ -35,15 +35,15 @@ Azure DevOps is a suite of development collaboration tools including high-perfor
 
 #### Azure Pipelines
 
-Azure Pipelines is a cloud service that allows you to automatically build and test your code project and make it available to other users[^3].
+Azure Pipelines is a cloud service that allows you to automatically build and test your projects, and make them available to other users[^3].
 
 
-If you're new to Azure Pipelines, here is a link to an article that explain how to build, test and deploy your JavaScript/Node.js application: <a href="https://docs.microsoft.com/en-us/azure/devops/pipelines/languages/javascript?view=azure-devops" target="_blank">link</a>.
+If you're new to Azure Pipelines, here is a link to an article that explain how to build, test, and deploy your JavaScript/Node.js applications: <a href="https://docs.microsoft.com/en-us/azure/devops/pipelines/languages/javascript?view=azure-devops" target="_blank">link</a>.
 
 
 ### What we did
 
-To build and deploy our React applications, here are the main tasks we did in the past:
+To build and deploy our React applications, here are the main steps we took in the past:
 1. *Build pipeline* - Build the solution for a specific environment
 2. *Build pipeline* - Copy the build artifact to the *Build.ArtifactStagingDirectory* folder (each environment has its own sub-folder)
 3. *Release pipeline* - Pick the right build artifact and deploy it to the right environment
@@ -81,7 +81,7 @@ Our *azure-pipelines.yml* (build pipeline) file looked something like this:
 ...
 ```
 
-When we wanted to deploy the application, we had to pick the right sub-folder in the artifacts. Here is the deployment task (release pipeline) for the UAT environment:
+When we wanted to deploy the application, we had to pick the right sub-folder in the artifacts directory. Here is the deployment task (release pipeline) for the UAT environment:
 
 ```yaml
 - download: current
@@ -132,30 +132,30 @@ if (env === "uat") {
 This technique has the following disadvantages:
 * Many environment-specific tasks in the build process
 * A lot of artifacts to store
-* The duration of the build stage is high
+* The duration of the build stage is less than ideal
 
-### What we do
+### What we do now
 
-Coming from a back-end environment where we are used to the "Build once, deploy many" approach, I want to apply the same path for a front-end application.  
+Coming from a back-end environment which followed the "Build once, deploy many" approach, I wanted to apply the same pattern for front-end applications.  
 The goal is to remove environment-specific tasks in the build process. It means:
 1. Less artifacts to store
 2. Decrease the build stage duration
 
 #### "Build once, deploy many" approach
 
-Rather than compiling and rebuilding your application for every environment you plan to deploy to, build your application binary only once, and then migrate the same build artifact to the different environments. By building once and deploying that binary many times, you have eliminated half of the aforementioned deploy time variables that could lead to errors.
+Rather than compiling and rebuilding your application for every environment you plan to deploy to, build your application binary only once, and then migrate the same build artifact to various environments. By building once and deploying that binary many times, you have eliminated half of the aforementioned error prone deploy time variables.
 
 #### The issue
 
-React embed all the environment variables in the generated files during the build time[^4]. It means that the environments variables' values are hidden in the "/build/static/js/main.*.js" files.
+React embeds all the environment variables in the generated files at build time[^4]. It means that the environments variables' values are hidden in the "/build/static/js/main.*.js" files.
 
 
 #### The solution
 
-Instead of inserting (during the build) the value of the environment variables in the generated file, we insert some well-defined tags. These tags will then be replaced at deploy time accordingly by the correct values.
+Instead of inserting (during the build) the value of the environment variables in the generated file, we insert some well-defined tags. These tags will then be replaced at deploy time accordingly by their proper values.
 
-The solution is decomposed into 5 big steps:
-1. Tokenisation of the environment variables in the solution files
+The solution is composed of 5 big steps:
+1. Tokenization of the environment variables in the solution files
 2. *Build pipeline* - Build the solution
 3. *Release pipeline* - Download the build artifact
 4. *Release pipeline* - Replace the tags in the generated files 
@@ -163,10 +163,10 @@ The solution is decomposed into 5 big steps:
 
 The 3 last steps have to be done for each environment.
 
-##### 1. Tokenisation of the environment variables
+##### 1. Tokenization of the environment variables
 
 The *.env.production* file now inserts tags into the generated files so the system can easily identify where the files need to be updated. Each variable has the same tag delimiter, in our case we picked "[!...!]".  
-Exemple:
+Example:
 
 ```javascript
 REACT_APP_APP_BASE_URL="[!Website.Url!]"
@@ -182,7 +182,7 @@ The solution is built using the classic commands:
 
 Once it's built, the system needs to publish the generated build files to the pipeline artifacts.
 
-Here is how the *azure-pipelines.yml* file looks like for the Build stage:
+Here is what the *azure-pipelines.yml* Build stage looks like:
 
 ```yaml
 - stage: 'Build'
@@ -223,9 +223,9 @@ The first step in the release pipeline is to download the artifact created durin
 
 Now that we have the build artifact, we can replace the tags in the generated files.
 
-To replace the tags in the generated files, we use the <a href="https://docs.microsoft.com/en-us/azure/devops/pipelines/tasks/utility/powershell?view=azure-devops" target="_blank">PowerShell task</a> provided by Azure Pipelines. This task enables us to execute any PowerShell script against our files. That's the perfect fit for our requirements !
+To replace the tags in the generated files, we use the <a href="https://docs.microsoft.com/en-us/azure/devops/pipelines/tasks/utility/powershell?view=azure-devops" target="_blank">PowerShell task</a> provided by Azure Pipelines. This task enables us to execute any PowerShell script against our files. That fits our requirements perfectly!
  
-The script takes every files in the "/build/static/js/" folder that starts with "main.*" and checks if it contains any tokenerized variables in it. If it finds a match, it replaces the tokenerized variable with the right value. The value are stored in the <a href="https://docs.microsoft.com/en-us/azure/devops/pipelines/process/variables?view=azure-devops&tabs=yaml%2Cbatch" target="_blank">Azure Pipelines variable</a>. This variables are accessible as <a href="https://docs.microsoft.com/en-us/powershell/module/microsoft.powershell.core/about/about_environment_variables?view=powershell-6" target="_blank">Environement Variables</a> (*env:*).
+The script takes every files in the "/build/static/js/" folder that starts with "main.*" and checks if it contains any tokenized variables. If it finds a match, it replaces the tokenized variable with the proper value. The values are stored in the <a href="https://docs.microsoft.com/en-us/azure/devops/pipelines/process/variables?view=azure-devops&tabs=yaml%2Cbatch" target="_blank">Azure Pipelines variable</a>. This variables are accessible as <a href="https://docs.microsoft.com/en-us/powershell/module/microsoft.powershell.core/about/about_environment_variables?view=powershell-6" target="_blank">Environment Variables</a> (*env:*).
  
 Here is the PowerShell script:
 
@@ -266,13 +266,13 @@ The final step is to deploy the application to an Azure App Service:
 
 ### Conclusion
 
-With this solution we make our build pipeline lighter. It means:
-1. Decrease of the build duration;
-2. Less artifacts to store;
+With this solution we lighten our build pipeline. That means:
+1. Optimal build duration;
+2. Reduced number of artifacts to store;
 3. No additional code required in our React app.
 
 
-You can find the *azure-pipelines.yml* file that describes the full pipeline (build + release to 2 different environments) here: <a href="https://github.com/Thibaultce/react-azuredevops-buildonce-deploymany/blob/master/azure-pipelines.yml" target="_blank">link</a>.
+You can find the *azure-pipelines.yml* file describing the full pipeline (build + release to 2 different environments) here: <a href="https://github.com/Thibaultce/react-azuredevops-buildonce-deploymany/blob/master/azure-pipelines.yml" target="_blank">azure-pipelines.yml</a>.
 
 
 [^1]: Source: [Azure documentation](https://docs.microsoft.com/en-us/azure/guides/developer/azure-developer-guide)
